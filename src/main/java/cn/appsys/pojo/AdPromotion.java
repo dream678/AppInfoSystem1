@@ -1,8 +1,9 @@
 package cn.appsys.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class AdPromotion {
+public class AdPromotion implements Serializable {
     private Integer id;//主键ID
     private Integer appId;//appId
     private String adPicPath;//广告图片存储路径

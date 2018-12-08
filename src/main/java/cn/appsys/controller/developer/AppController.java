@@ -9,6 +9,8 @@ import cn.appsys.tools.Constants;
 import cn.appsys.tools.PageSupport;
 import com.alibaba.fastjson.JSONArray;
 import com.mysql.jdbc.StringUtils;
+import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Api;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
@@ -24,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 @Controller
+@Api(value = "restful1", description = "测试")
 @RequestMapping(value = "/dev/flatform/app")
 public class AppController {
     private Logger logger = Logger.getLogger(AppController.class);
@@ -35,7 +38,7 @@ public class AppController {
     private AppCategoryService appCategoryService;
     @Resource
     private AppVersionService appVersionService;
-
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/list")
     public String getAppInfoList(Model model, HttpSession session,
                                  @RequestParam(value = "querySoftwareName", required = false) String querySoftwareName,
@@ -179,6 +182,7 @@ public class AppController {
      * @param pid
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/categorylevellist.json", method = RequestMethod.GET)
     @ResponseBody
     public List<AppCategory> getAppCategoryList(@RequestParam String pid) {
@@ -204,6 +208,7 @@ public class AppController {
      * @param appInfo
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/appinfoadd", method = RequestMethod.GET)
     public String add(@ModelAttribute("appInfo") AppInfo appInfo) {
         return "developer/appinfoadd";
@@ -216,6 +221,7 @@ public class AppController {
      * @param session
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/appinfoaddsave", method = RequestMethod.POST)
     public String addSave(AppInfo appInfo, HttpSession session, HttpServletRequest request,
                           @RequestParam(value = "a_logoPicPath", required = false) MultipartFile attach) {
@@ -276,6 +282,7 @@ public class AppController {
      * @param
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/appversionadd", method = RequestMethod.GET)
     public String addVersion(@RequestParam(value = "id") String appId,
                              @RequestParam(value = "error", required = false) String fileUploadError,
@@ -313,6 +320,7 @@ public class AppController {
      * @param attach
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/addversionsave", method = RequestMethod.POST)
     public String addVersionSave(AppVersion appVersion, HttpSession session, HttpServletRequest request,
                                  @RequestParam(value = "a_downloadLink", required = false) MultipartFile attach) {
@@ -371,7 +379,7 @@ public class AppController {
         }
         return "redirect:/dev/flatform/app/appversionadd?id=" + appVersion.getAppId();
     }
-
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/{appid}/sale", method = RequestMethod.PUT)
     @ResponseBody
     public Object sale(@PathVariable String appid, HttpSession session) {
@@ -418,6 +426,7 @@ public class AppController {
      * @param
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/apkexist.json", method = RequestMethod.GET)
     @ResponseBody
     public Object apkNameIsExit(@RequestParam String APKName) {
@@ -446,6 +455,7 @@ public class AppController {
      * @param
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/appview/{id}", method = RequestMethod.GET)
     public String view(@PathVariable String id, Model model) {
         AppInfo appInfo = null;
@@ -476,6 +486,7 @@ public class AppController {
      * @param model
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/appinfomodify", method = RequestMethod.GET)
     public String modifyAppInfo(@RequestParam("id") String id,
                                 @RequestParam(value = "error", required = false) String fileUploadError,
@@ -510,6 +521,7 @@ public class AppController {
      * @param model
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/appversionmodify", method = RequestMethod.GET)
     public String modifyAppVersion(@RequestParam("vid") String versionId,
                                    @RequestParam("aid") String appId,
@@ -544,6 +556,7 @@ public class AppController {
      * @param session
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/appversionmodifysave", method = RequestMethod.POST)
     public String modifyAppVersionSave(AppVersion appVersion, HttpSession session, HttpServletRequest request,
                                        @RequestParam(value = "attach", required = false) MultipartFile attach) {
@@ -616,6 +629,7 @@ public class AppController {
      * @param id
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/delfile", method = RequestMethod.GET)
     @ResponseBody
     public Object delFile(@RequestParam(value = "flag", required = false) String flag,
@@ -664,6 +678,7 @@ public class AppController {
      * @param session
      * @return
      */
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/appinfomodifysave", method = RequestMethod.POST)
     public String modifySave(AppInfo appInfo, HttpSession session, HttpServletRequest request,
                              @RequestParam(value = "attach", required = false) MultipartFile attach) {
@@ -716,7 +731,7 @@ public class AppController {
         return "developer/appinfomodify";
     }
 
-
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/delapp.json")
     @ResponseBody
     public Object delApp(@RequestParam String id) {

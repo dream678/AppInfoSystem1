@@ -1,8 +1,9 @@
 package cn.appsys.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class DevUser {
+public class DevUser implements Serializable {
     private Integer id;//主键id
     private String devCode;//开发者帐号(系统登录账号)
     private String devName;//开发者名称

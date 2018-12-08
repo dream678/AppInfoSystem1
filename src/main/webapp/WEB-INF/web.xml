@@ -9,10 +9,15 @@
     <welcome-file-list>
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
+    <!--防止spring内存溢出-->
+    <listener>
+        <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
+    </listener>
     <!-- 指定Spring Bean的配置文件所在目录
               在web.xml中通过contextConfigLocation配置spring，
        contextConfigLocation参数定义了要装入的 Spring 配置文件。
   -->
+
     <context-param>
         <param-name>contextConfigLocation</param-name>
         <param-value>classpath:applicationContext-*.xml</param-value>

@@ -1,8 +1,9 @@
 package cn.appsys.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class DataDictionary {
+public class DataDictionary implements Serializable {
     private Integer id;//主键id
     private String typeCode;//类型编码
     private String typeName;//类型名称

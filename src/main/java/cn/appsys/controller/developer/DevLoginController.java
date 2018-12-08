@@ -3,6 +3,8 @@ package cn.appsys.controller.developer;
 import cn.appsys.pojo.DevUser;
 import cn.appsys.service.developer.DevUserService;
 import cn.appsys.tools.Constants;
+import com.wordnik.swagger.annotations.ApiOperation;
+import io.swagger.annotations.Api;
 import org.apache.log4j.Logger;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,18 +17,19 @@ import javax.servlet.http.HttpSession;
 
 @Controller
 @RequestMapping(value = "/dev")
+@Api(value = "restful", description = "测试")
 public class DevLoginController {
     private Logger logger = Logger.getLogger(DevLoginController.class);
 
     @Resource
     private DevUserService devUserService;
-
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/login")
     public String login() {
         logger.debug("LoginController welcome AppInfoSystem develpor==================");
         return "devlogin";
     }
-
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/dologin", method = RequestMethod.POST)
     public String doLogin(@RequestParam String devCode, @RequestParam String devPassword, HttpServletRequest request, HttpSession session) {
         logger.debug("doLogin====================================");
@@ -49,7 +52,7 @@ public class DevLoginController {
             return "devlogin";
         }
     }
-
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/flatform/main")
     public String main(HttpSession session) {
         if (session.getAttribute(Constants.DEV_USER_SESSION) == null) {
@@ -57,7 +60,7 @@ public class DevLoginController {
         }
         return "developer/main";
     }
-
+    @ApiOperation(value = "测试专用")
     @RequestMapping(value = "/logout")
     public String logout(HttpSession session) {
         //清除session

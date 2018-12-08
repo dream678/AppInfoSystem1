@@ -23,7 +23,7 @@
                     </list>
                 </property>
             </bean>
-          <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+            <bean class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
                 <property name="supportedMediaTypes">
                     <list>
                         <value>text/html;charset=UTF-8</value>
@@ -38,7 +38,6 @@
             </bean>
         </mvc:message-converters>
     </mvc:annotation-driven>
-
 
 
     <bean class="org.springframework.web.servlet.view.ContentNegotiatingViewResolver">
@@ -76,4 +75,8 @@
     </bean>
 
     <mvc:resources mapping="/statics/**" location="/statics/"/>
+
+    <bean class="springfox.documentation.swagger2.configuration.Swagger2DocumentationConfiguration" id="swagger2Config"/>
+    <mvc:resources location="classpath:/META-INF/resources/" mapping="swagger-ui.html"/>
+    <mvc:resources location="classpath:/META-INF/resources/webjars/" mapping="/webjars/**"/>
 </beans>

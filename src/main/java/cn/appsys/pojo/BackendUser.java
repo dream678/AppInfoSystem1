@@ -1,8 +1,9 @@
 package cn.appsys.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class BackendUser {
+public class BackendUser implements Serializable {
     private Integer id;//主键id
     private String userCode;//用户编码（登录账号）
     private String userName;//用户名称

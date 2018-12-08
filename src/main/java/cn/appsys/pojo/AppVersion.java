@@ -1,9 +1,10 @@
 package cn.appsys.pojo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class AppVersion {
+public class AppVersion implements Serializable {
     private Integer id;//主键id
     private Integer appId;//appId
     private String versionNo;//版本号

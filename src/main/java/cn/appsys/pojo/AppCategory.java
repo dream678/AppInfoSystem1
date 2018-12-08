@@ -1,8 +1,9 @@
 package cn.appsys.pojo;
 
+import java.io.Serializable;
 import java.util.Date;
 
-public class AppCategory {
+public class AppCategory implements Serializable {
     private Integer id;//主键id
     private String categoryCode;//分类编码
     private String categoryName;//分类名称

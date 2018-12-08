@@ -3,7 +3,7 @@
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="cn.appsys.dao.appversion.AppVersionMapper">
-
+    <cache type="cn.appsys.cache.RedisCache" />
     <select id="getAppVersionList" resultType="AppVersion">
         select v.*,
         (select a.softwareName from app_info a where a.id=v.appId ) as appName,

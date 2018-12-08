@@ -1,9 +1,10 @@
 package cn.appsys.pojo;
 
+import java.io.Serializable;
 import java.math.BigDecimal;
 import java.util.Date;
 
-public class AppInfo {
+public class AppInfo  implements Serializable {
     private Integer id;//主键id
     private String softwareName;//软件名称
     private String APKName;//APK名称

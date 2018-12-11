@@ -1,103 +1,161 @@
 package cn.appsys.cache;
 
-import cn.appsys.tools.SerializeUtil;
-import org.apache.ibatis.cache.Cache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-
-import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-/**
- * Created with IntelliJ IDEA.
- * User:admin
- * Date:2018/12/7
- * Time:11:44
- * Desc:
- */
+import cn.appsys.tools.SerializeUtil;
+import cn.appsys.tools.StringRedisSerializer;
+import org.apache.ibatis.cache.Cache;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.data.redis.connection.jedis.JedisConnection;
+import org.springframework.data.redis.connection.jedis.JedisConnectionFactory;
+import org.springframework.data.redis.serializer.JdkSerializationRedisSerializer;
+import org.springframework.data.redis.serializer.RedisSerializer;
+
+import redis.clients.jedis.exceptions.JedisConnectionException;
+
 public class RedisCache implements Cache {
-    private final ReadWriteLock readWriteLock = new ReentrantReadWriteLock();
-    private static Logger logger=LoggerFactory.getLogger(RedisCache.class);
+    private static final Logger logger = LoggerFactory.getLogger(RedisCache.class);
+
+    private static JedisConnectionFactory jedisConnectionFactory;
+
+    private final String id;
+
     /**
-     * Jedis客户端
+     * The {@code ReadWriteLock}.
      */
+    private final ReadWriteLock rwl = new ReentrantReadWriteLock();
 
-    @Autowired
-    private Jedis redisClient = createClient();
-
-    private String id;
 
     public RedisCache(final String id) {
         if (id == null) {
-            throw new IllegalArgumentException("必须传入ID");
+            throw new IllegalArgumentException("Cache instances require an ID");
         }
-        System.out.println("MybatisRedisCache:id=" + id);
+        logger.debug("MybatisRedisCache:id=" + id);
         this.id = id;
     }
 
+    /**
+     * 清空所有缓存
+     */
     @Override
     public void clear() {
-        logger.info("1=============================================================");
-        redisClient.flushDB();
+        rwl.readLock().lock();
+        JedisConnection connection = null;
+        try {
+            connection = jedisConnectionFactory.getConnection();
+            connection.flushDb();
+            connection.flushAll();
+        } catch (JedisConnectionException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+            rwl.readLock().unlock();
+        }
     }
 
     @Override
     public String getId() {
-        logger.info("2=============================================================");
         return this.id;
     }
 
-    @Override
-    public Object getObject(Object key) {
-        byte[] ob = redisClient.get(SerializeUtil.serialize(key.toString()));
-        if (ob == null) {
-            return null;
-        }
-        Object value = SerializeUtil.unSerialize(ob);
-        logger.info("3=============================================================");
-        return value;
-    }
-
-    @Override
-    public ReadWriteLock getReadWriteLock()
-    {
-        logger.info("4=============================================================");
-        return readWriteLock;
-    }
-
+    /**
+     * 获取缓存总数量
+     */
     @Override
     public int getSize() {
-        logger.info("5=============================================================");
-        return Integer.valueOf(redisClient.dbSize().toString());
+        int result = 0;
+        JedisConnection connection = null;
+        try {
+            connection = jedisConnectionFactory.getConnection();
+            result = Integer.valueOf(connection.dbSize().toString());
+            logger.info("添加mybaits二级缓存数量：" + result);
+        } catch (JedisConnectionException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return result;
     }
 
     @Override
     public void putObject(Object key, Object value) {
-        logger.info("6=============================================================");
-        redisClient.set(SerializeUtil.serialize(key.toString()), SerializeUtil.serialize(value));
+        rwl.writeLock().lock();
+
+        JedisConnection connection = null;
+        try {
+            connection = jedisConnectionFactory.getConnection();
+            RedisSerializer<Object> serializer = new StringRedisSerializer();
+           /* RedisSerializer<Object> serializer = new JdkSerializationRedisSerializer();*/
+            connection.set(SerializeUtil.serialize(key), SerializeUtil.serialize(value));
+            logger.info("添加mybaits二级缓存key=" + key + ",value=" + value);
+        } catch (JedisConnectionException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+            rwl.writeLock().unlock();
+        }
+    }
+
+    @Override
+    public Object getObject(Object key) {
+        // 先从缓存中去取数据,先加上读锁
+        rwl.readLock().lock();
+        Object result = null;
+        JedisConnection connection = null;
+        try {
+            connection = jedisConnectionFactory.getConnection();
+            RedisSerializer<Object> serializer = new JdkSerializationRedisSerializer();
+            result = serializer.deserialize(connection.get(serializer.serialize(key)));
+            logger.info("命中mybaits二级缓存,value=" + result);
+
+        } catch (JedisConnectionException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+            rwl.readLock().unlock();
+        }
+        return result;
     }
 
     @Override
     public Object removeObject(Object key) {
-        return redisClient.expire(SerializeUtil.serialize(key.toString()), 0);
+        rwl.writeLock().lock();
+
+        JedisConnection connection = null;
+        Object result = null;
+        try {
+            connection = jedisConnectionFactory.getConnection();
+            RedisSerializer<Object> serializer = new JdkSerializationRedisSerializer();
+            result = connection.expire(serializer.serialize(key), 0);
+        } catch (JedisConnectionException e) {
+            e.printStackTrace();
+        } finally {
+            if (connection != null) {
+                connection.close();
+            }
+            rwl.writeLock().unlock();
+        }
+        return result;
     }
 
-    protected static Jedis createClient() {
+    public static void setJedisConnectionFactory(JedisConnectionFactory jedisConnectionFactory) {
+        RedisCache.jedisConnectionFactory = jedisConnectionFactory;
+    }
 
-        try {
-            @SuppressWarnings("resource")
-            JedisPool pool = new JedisPool(new JedisPoolConfig(), "127.0.0.1", 6379);
-            logger.info("添加成功=============================================================");
-            return pool.getResource();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        throw new RuntimeException("初始化连接池错误");
+    @Override
+    public ReadWriteLock getReadWriteLock() {
+        // TODO Auto-generated method stub
+        return rwl;
     }
 
 }

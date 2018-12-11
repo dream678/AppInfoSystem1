@@ -10,9 +10,9 @@
         <welcome-file>index.jsp</welcome-file>
     </welcome-file-list>
     <!--防止spring内存溢出-->
-    <listener>
+    <!--<listener>
         <listener-class>org.springframework.web.util.IntrospectorCleanupListener</listener-class>
-    </listener>
+    </listener>-->
     <!-- 指定Spring Bean的配置文件所在目录
               在web.xml中通过contextConfigLocation配置spring，
        contextConfigLocation参数定义了要装入的 Spring 配置文件。
@@ -65,7 +65,7 @@
 
     <!-- Spring配置 -->
     <!-- 当系统启动的时候，spring需要进行一些资源加载或者配置，都需要使用此监听去做 -->
-    <listener>
+   <listener>
         <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
     </listener>
 
